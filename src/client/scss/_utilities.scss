@@ -1,0 +1,79 @@
+/*
+Observations:
+  1. Utility classes are dangerous. They're quick to write, but difficult to read and track what's happening to your code.
+  2. Flexbox necessitates that you have containers that don't do anything, and it's cumbersome to make classes and name
+    them all
+
+Solution:
+  1. Make VERY few utility classes solely meant for Flexbox, and make use of SASS variables, nesting, and code splitting 
+    to keep your css maintainable and readable.  
+
+Observations:
+  1. CSS resets can get big and heavy, using selectors I've never seen.
+  2. That being said, many browser defaults are pretty terrible and need to be reset.
+  
+Solution:
+  1. Use Normalize CSS to solve browser inconsistencies.
+  2. Make up your own reset using only selectors you actually use.
+*/
+
+.flex-row {
+  display: flex;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-around {
+  justify-content: space-around;
+}
+
+.justify-evenly {
+  justify-content: space-evenly;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.align-stretch {
+  align-items: stretch;
+}
+
+.align-baseline {
+  align-items: baseline;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
