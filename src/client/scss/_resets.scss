@@ -1,5 +1,5 @@
 :root {
-  font-size: 16px;
+  font-size: 24px;
 }
 
 *,
@@ -35,7 +35,6 @@ nav,
 section {
   margin: 0;
   padding: 0;
-  border: 0;
   font-size: 100%;
   font: inherit;
   vertical-align: baseline;
@@ -51,4 +50,8 @@ textarea {
 ol,
 ul {
   list-style: none;
+}
+
+a {
+  text-decoration: none;
 }

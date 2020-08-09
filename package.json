@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "client": "webpack-dev-server",
-    "server": "nodemon src/server/index.js",
+    "server": "nodemon --experimental-modules src/server/index.mjs",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "nuke": "rm -rf node_modules && npm install"
   },
@@ -21,6 +21,7 @@
   "dependencies": {
     "bcrypt": "^5.0.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.25",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -33,13 +34,6 @@
     "babel-loader": "^8.1.0",
     "css-loader": "^4.0.0",
     "dotenv": "^8.2.0",
-    "eslint": "^7.5.0",
-    "eslint-config-standard": "^14.1.1",
-    "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.20.3",
-    "eslint-plugin-standard": "^4.0.1",
     "html-webpack-plugin": "^4.3.0",
     "nodemon": "^2.0.4",
     "sass": "^1.26.10",

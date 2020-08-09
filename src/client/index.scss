@@ -1,9 +1,6 @@
-@use "normalize";
-@use "resets";
 @use "variables";
-@use "utilities";
-@use "mixins";
 
 body {
-  background-color: variables.$background-prim;
+  margin-top: variables.$spacing-unit;
+  background-color: white;
 }
