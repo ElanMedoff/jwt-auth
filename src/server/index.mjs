@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-// import userRouter from "./routes/user";
 import authRouter from "./routes/auth.mjs";
+import catRouter from "./routes/cat.mjs";
 
 dotenv.config();
 const app = express();
@@ -21,10 +21,13 @@ db.once("open", () => console.log("connected to the database"));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api", authRouter);
+app.use("/api", catRouter);
+app.all("*", (_, res) => {
+  res.status(404);
+});
 // Add in a catch-all route here
 
-// get name -> returns name if authenticated
-
 const listener = app.listen(8080, () =>
+  // eslint-disable-next-line no-console
   console.log(`Server has started on port ${listener.address().port}`)
 );

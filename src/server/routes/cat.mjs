@@ -3,6 +3,8 @@ import authenticate from "../middleware/authenticate.mjs";
 
 const router = express.Router();
 
-router.cat("/", authenticate, (req, res) => {});
+router.get("/cat", authenticate, (req, res) => {
+  res.json("I am a cat.");
+});
 
 export default router;

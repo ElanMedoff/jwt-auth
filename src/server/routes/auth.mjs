@@ -85,7 +85,7 @@ router.post("/login", async (req, res) => {
 
   if (!user) {
     return res.status(401).json({
-      message: `The username: ${req.body.username} is not registered!`,
+      message: `The username: ${req.body.username} is not in the db!`,
     });
   }
 
@@ -93,12 +93,12 @@ router.post("/login", async (req, res) => {
   try {
     await bcrypt.compare(req.body.password, user.password);
   } catch (err) {
-    if (err) {
-      return res.status(401).json({
-        message: err.message,
-      });
-    }
+    return res.status(401).json({
+      message: "User's password and the passed-in password don't match!",
+    });
   }
+
+  // TODO if the password is wrong, get rid of the refresh token?
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -145,14 +145,16 @@ router.get("/accessToken", async (req, res) => {
         refreshToken: req.cookies.refreshToken,
       });
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      return res
+        .status(500)
+        .json({ message: err.message, location: "await RefreshToken.findOne" });
     }
 
     if (!savedRefreshToken) {
-      return res.status(401).send("The refresh token is not saved in the db!");
+      return res.status(401).json("The refresh token is not saved in the db!");
     }
 
-    // If saved, send back a new access token
+    // If saved, json back a new access token
     let decodedRefreshToken;
     try {
       decodedRefreshToken = jwt.verify(
@@ -160,11 +162,13 @@ router.get("/accessToken", async (req, res) => {
         process.env.REFRESH_TOKEN_SECRET
       );
     } catch (err) {
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(500)
+        .json({ message: err.message, location: "jwt.verify" });
     }
 
     if (!decodedRefreshToken) {
-      return res.status(401).send("The refresh token cannot be read!");
+      return res.status(401).json("The refresh token cannot be read!");
     }
 
     try {
@@ -175,11 +179,13 @@ router.get("/accessToken", async (req, res) => {
 
       return res.status(202).json({ accessToken });
     } catch (err) {
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(500)
+        .json({ message: err.message, location: "await User.findOne" });
     }
   }
 
-  return res.status(401).send("No refresh token in the cookies");
+  return res.status(401).json("No refresh token in the cookies");
 });
 
 export default router;

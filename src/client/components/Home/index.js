@@ -6,19 +6,25 @@ export default function Home() {
   const [signupPassword, setSignupPassword] = useState("");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [isSignupError, setIsSignupError] = useState(false);
+  const [isLoginError, setIsLoginError] = useState(false);
   const [accessToken, setAccessToken] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/accessToken")
-      .then((res) => {
-        // TODO this pattern looks rough
-        if (res.status === 202) return res.json();
-        throw new Error(`Status: ${res.status}`);
-      })
-      .then((res) => setAccessToken(res.accessToken));
+    async function fetchAccessToken() {
+      const res = await fetch("http://localhost:3000/api/accessToken");
+      const data = await res.json();
+      if (res.status === 202) {
+        setAccessToken(data.accessToken);
+      } else {
+        console.warn(data, "Normal behavior if occurring on-reload");
+      }
+    }
+
+    fetchAccessToken();
   }, []);
 
-  function myPost(url, data) {
+  function myFetch(method, url, data) {
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (accessToken) {
@@ -26,41 +32,54 @@ export default function Home() {
     }
 
     const myInit = {
-      method: "POST",
+      method: method,
       headers: myHeaders,
       mode: "same-origin",
       cache: "default",
-      body: JSON.stringify(data),
+      body: data ? JSON.stringify(data) : undefined,
     };
 
     return fetch(url, myInit);
   }
 
-  function onSignup(e) {
+  async function onSignup(e) {
     e.preventDefault();
-    myPost("http://localhost:3000/api/signup", {
+    const res = await myFetch("POST", "http://localhost:3000/api/signup", {
       username: signupUsername,
       password: signupPassword,
-    })
-      .then((res) => res.json())
-      .then((res) => console.log(res))
-      .catch((e) => console.error(e));
+    });
+    if (res.status !== 201) {
+      setIsSignupError(true);
+    }
   }
 
-  function onLogin(e) {
+  async function onLogin(e) {
     e.preventDefault();
-    myPost("http://localhost:3000/api/login", {
+
+    const res = await myFetch("POST", "http://localhost:3000/api/login", {
       username: loginUsername,
       password: loginPassword,
-    })
-      .then((res) => {
-        if (res.status === 202) return res.json();
-        throw new Error("Bad login!");
-      })
-      .then((res) => setAccessToken(res.accessToken))
-      .catch((e) => console.error(e));
+    });
+
+    if (res.status !== 202) {
+      setIsLoginError(true);
+      return;
+    }
+
+    const data = await res.json();
+    setAccessToken(data.accessToken);
   }
 
+  async function getCat(e) {
+    e.preventDefault();
+
+    const res = await myFetch("GET", "http://localhost:3000/api/cat");
+    const data = await res.json();
+
+    console.log(data, res.status);
+  }
+
+  //TODO add in error fields, clean up this form
   return (
     <>
       accessToken: {accessToken}
@@ -99,6 +118,7 @@ export default function Home() {
         </button>
         {/* {`<a href="${signupPassword}">${username}</a>`} */}
       </form>
+      <button onClick={getCat}>CAT</button>
     </>
   );
 }

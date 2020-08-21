@@ -15,13 +15,15 @@ export default async function authenticate(req, res, next) {
       if (!savedRefreshToken) {
         return res
           .status(401)
-          .send("The refresh token is not saved in the db!");
+          .json("The refresh token is not saved in the db!");
       }
     } catch (err) {
-      return res.status(500).json({ message: err.message });
+      return res
+        .status(500)
+        .json({ message: err.message, location: "RefreshToken.findOne" });
     }
   } else {
-    return res.status(401).send("No refresh token in the cookies!");
+    return res.status(401).json("No refresh token in the cookies!");
   }
 
   // Check that the refresh token is valid
@@ -31,11 +33,13 @@ export default async function authenticate(req, res, next) {
       process.env.REFRESH_TOKEN_SECRET
     );
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res
+      .status(500)
+      .json({ message: err.message, location: "jwt.verify refresh token" });
   }
 
   if (!decodedRefreshToken) {
-    return res.status(401).send("The refresh token cannot be read!");
+    return res.status(401).json("The refresh token cannot be read!");
   }
 
   // Check that the access token is valid
@@ -46,38 +50,69 @@ export default async function authenticate(req, res, next) {
         process.env.ACCESS_TOKEN_SECRET
       );
     } catch (err) {
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(500)
+        .json({ message: err.message, location: "jwt.verify access token" });
     }
   } else {
-    return res.status(401).send("No access token in the headers!");
+    return res.status(401).json("No access token in the headers!");
   }
 
   if (!decodedAccessToken) {
-    return res.status(401).send("The access token cannot be read!");
+    return res.status(401).json("The access token cannot be read!");
   }
 
   // Compare the two profiles
+  let refreshTokenUser;
   try {
-    const refreshTokenUser = await User.findOne({
-      username: decodedRefreshToken.username,
+    refreshTokenUser = await User.findOne({
+      username: decodedRefreshToken.user.username,
     });
-    const accessTokenUser = await User.findOne({
-      username: decodedAccessToken.username,
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      location: "User.findOne refresh token user",
     });
+  }
 
-    if (
-      refreshTokenUser.username === accessTokenUser.username &&
-      refreshTokenUser.password === accessTokenUser.password
-    ) {
-      // TODO does this make sense for where to put the return?
-      res.status(200);
-      return next();
-    }
-
+  if (!refreshTokenUser) {
     return res
       .status(401)
-      .send("The access token user and the refresh token user don't match!");
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
+      .json(
+        "The user read from the refresh token cannot be found in the database!"
+      );
   }
+
+  let accessTokenUser;
+  try {
+    accessTokenUser = await User.findOne({
+      username: decodedAccessToken.user.username,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+      location: "User.findOne access token user",
+    });
+  }
+
+  if (!accessTokenUser) {
+    return res
+      .status(401)
+      .json(
+        "The user read from the access token cannot be found in the database!"
+      );
+  }
+
+  if (
+    refreshTokenUser.username === accessTokenUser.username &&
+    refreshTokenUser.password === accessTokenUser.password
+  ) {
+    // TODO does this make sense for where to put the return?
+    res.status(200);
+    return next();
+  }
+
+  return res
+    .status(401)
+    .json("The access token user and the refresh token user don't match!");
 }
