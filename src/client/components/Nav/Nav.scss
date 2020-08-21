@@ -1,4 +1,4 @@
-@use "variables";
+@use "vars";
 
 ul {
   display: flex;
@@ -6,17 +6,16 @@ ul {
   width: 50%;
 
   li {
-    padding: 0 variables.$spacing-unit;
-    border-bottom: variables.$border-unit * 3 solid variables.$orange;
-    font-style: italic;
+    padding: 0 vars.$spacing-unit;
     font-weight: bold;
+    font-size: vars.$font-lrg;
 
     a {
-      color: variables.$orange;
+      color: vars.$text-primary;
       transition: color 0.1s linear;
 
       &:hover {
-        color: variables.$text-secondary;
+        color: vars.$text-secondary;
         transition: color 0.1s linear;
       }
     }

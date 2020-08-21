@@ -1,6 +1,6 @@
-@use "variables";
+@use "vars";
 
 body {
-  margin-top: variables.$spacing-unit;
+  margin-top: vars.$spacing-unit;
   background-color: white;
 }

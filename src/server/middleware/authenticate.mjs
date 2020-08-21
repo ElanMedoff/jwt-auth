@@ -107,8 +107,8 @@ export default async function authenticate(req, res, next) {
     refreshTokenUser.username === accessTokenUser.username &&
     refreshTokenUser.password === accessTokenUser.password
   ) {
-    // TODO does this make sense for where to put the return?
     res.status(200);
+    res.username = accessTokenUser.username;
     return next();
   }
 

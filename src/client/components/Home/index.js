@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import AccessTokenContext from "client/contexts/accessTokenContext";
+import myFetch from "client/utilities/myFetch";
 import "./Home.scss";
 
 export default function Home() {
+  const [accessToken, setAccessToken] = useContext(AccessTokenContext);
+
   const [signupUsername, setSignupUsername] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [isSignupError, setIsSignupError] = useState(false);
   const [isLoginError, setIsLoginError] = useState(false);
-  const [accessToken, setAccessToken] = useState("");
 
   useEffect(() => {
     async function fetchAccessToken() {
-      const res = await fetch("http://localhost:3000/api/accessToken");
+      const res = await fetch("http://localhost:3000/api/auth/accessToken");
       const data = await res.json();
       if (res.status === 202) {
         setAccessToken(data.accessToken);
@@ -24,65 +27,68 @@ export default function Home() {
     fetchAccessToken();
   }, []);
 
-  function myFetch(method, url, data) {
-    let myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    if (accessToken) {
-      myHeaders.append("Authorization", `Bearer ${accessToken}`);
-    }
-
-    const myInit = {
-      method: method,
-      headers: myHeaders,
-      mode: "same-origin",
-      cache: "default",
-      body: data ? JSON.stringify(data) : undefined,
-    };
-
-    return fetch(url, myInit);
-  }
-
   async function onSignup(e) {
     e.preventDefault();
-    const res = await myFetch("POST", "http://localhost:3000/api/signup", {
-      username: signupUsername,
-      password: signupPassword,
-    });
+    const res = await myFetch(
+      "POST",
+      "http://localhost:3000/api/auth/signup",
+      {
+        username: signupUsername,
+        password: signupPassword,
+      },
+      accessToken
+    );
+    const data = await res.json();
+
     if (res.status !== 201) {
+      console.error(res.status, data);
       setIsSignupError(true);
+      return;
     }
+    console.log(res.status, data);
   }
 
   async function onLogin(e) {
     e.preventDefault();
+    const res = await myFetch(
+      "POST",
+      "http://localhost:3000/api/auth/login",
+      {
+        username: loginUsername,
+        password: loginPassword,
+      },
+      accessToken
+    );
 
-    const res = await myFetch("POST", "http://localhost:3000/api/login", {
-      username: loginUsername,
-      password: loginPassword,
-    });
+    const data = await res.json();
 
     if (res.status !== 202) {
+      console.error(res.status, data);
       setIsLoginError(true);
       return;
     }
-
-    const data = await res.json();
     setAccessToken(data.accessToken);
   }
 
   async function getCat(e) {
     e.preventDefault();
 
-    const res = await myFetch("GET", "http://localhost:3000/api/cat");
+    const res = await myFetch(
+      "GET",
+      "http://localhost:3000/api/cat",
+      null,
+      accessToken
+    );
     const data = await res.json();
 
     console.log(data, res.status);
   }
 
-  //TODO add in error fields, clean up this form
+  // TODO add in error fields, clean up this form
   return (
     <>
-      accessToken: {accessToken}
+      accessToken:
+      {accessToken}
       <form>
         Signup
         <input

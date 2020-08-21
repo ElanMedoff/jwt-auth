@@ -7,8 +7,7 @@ export function generateAccessToken(user) {
 }
 
 export function generateRefreshToken(user) {
-  //TODO line this up with cookie
   return jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "1m",
+    expiresIn: process.env.REFRESH_TOKEN_DURATION,
   });
 }

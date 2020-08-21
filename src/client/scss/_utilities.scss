@@ -1,14 +1,3 @@
-/*
-Observations:
-  1. Utility classes are dangerous. They're quick to write, but difficult to read and track what's happening to your code.
-  2. Flexbox necessitates that you have containers that don't do anything, and it's cumbersome to make classes and name
-    them all
-
-Solution:
-  1. Make VERY few utility classes solely meant for Flexbox, and make use of SASS variables, nesting, and code splitting 
-    to keep your css maintainable and readable.  
-*/
-
 .flex-row {
   display: flex;
 }

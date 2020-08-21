@@ -11,39 +11,6 @@ import {
 const router = express.Router();
 const saltRounds = 10;
 
-// Helper routes
-router.get("/", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-});
-
-router.get("/refreshTokens", async (req, res) => {
-  try {
-    const refreshTokens = await RefreshToken.find();
-    res.json(refreshTokens);
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-});
-
-router.get("/removeAll", async (req, res) => {
-  try {
-    await User.remove({});
-    await RefreshToken.remove({});
-
-    const refreshTokens = await RefreshToken.find();
-    const users = await User.find();
-    res.json({ users, refreshTokens });
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
-  }
-});
-
-// Actual routes
 router.post("/signup", async (req, res) => {
   let user;
   try {
@@ -90,15 +57,31 @@ router.post("/login", async (req, res) => {
   }
 
   // Validate the password
+  let isPasswordCorrect;
   try {
-    await bcrypt.compare(req.body.password, user.password);
+    isPasswordCorrect = await bcrypt.compare(req.body.password, user.password);
   } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+
+  if (!isPasswordCorrect) {
+    // TODO abstract this?
+    try {
+      if (req.cookies && req.cookies.refreshToken) {
+        // Delete the refresh token from the saved list
+        const savedRefreshToken = await RefreshToken.findOne({
+          refreshToken: req.cookies.refreshToken,
+        });
+        if (savedRefreshToken) await savedRefreshToken.remove();
+      }
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
+    }
+
     return res.status(401).json({
       message: "User's password and the passed-in password don't match!",
     });
   }
-
-  // TODO if the password is wrong, get rid of the refresh token?
 
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
@@ -113,9 +96,8 @@ router.post("/login", async (req, res) => {
   }
 
   res.cookie("refreshToken", refreshToken, {
-    maxAge: 60 * 60 * 12000, // 12 hour
+    maxAge: process.env.REFRESH_TOKEN_DURATION, // 12 hour
     httpOnly: true,
-    // secure: true,
     sameSite: true,
   });
 
@@ -131,6 +113,7 @@ router.post("/logout", async (req, res) => {
       });
       await savedRefreshToken.remove();
     }
+    return res.status(200);
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
