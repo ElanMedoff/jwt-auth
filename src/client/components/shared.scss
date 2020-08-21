@@ -12,14 +12,28 @@
     flex-direction: column;
     align-items: center;
 
+    h1 {
+      font-size: vars.$font-lrg;
+      margin: vars.$spacing-unit;
+    }
+
     input {
       margin: vars.$spacing-unit--half;
       display: block;
       width: 50%;
-
-      h1 {
-        font-size: vars.$font-base;
-      }
+      border-bottom: vars.$border-unit--half solid black;
     }
+  }
+}
+
+button {
+  margin-top: vars.$spacing-unit;
+  border: vars.$border-unit--half solid black;
+  padding: vars.$spacing-unit--half vars.$spacing-unit--double;
+  // border-radius: 1000px;
+
+  &:hover {
+    background-color: lightgrey;
+    transition: background-color 0.25s ease, color 0.25s ease;
   }
 }

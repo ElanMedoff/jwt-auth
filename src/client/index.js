@@ -8,7 +8,7 @@ import Home from "client/components/Home";
 import Nav from "client/components/Nav";
 import Cat from "client/components/Cat";
 import "client/scss/_normalize.scss";
-// import "client/scss/_resets.scss";
+import "client/scss/_resets.scss";
 import "client/scss/_utilities.scss";
 import "./index.scss";
 

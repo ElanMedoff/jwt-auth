@@ -41,7 +41,7 @@ export default function Signup() {
         />
         <input
           type="text"
-          placeholder="signupPassword"
+          placeholder="password"
           onChange={(e) => setSignupPassword(e.target.value)}
         />
         <button type="submit" onClick={(e) => onSignup(e)}>

@@ -1,23 +1,40 @@
 @use "vars";
 
-ul {
+.nav-container {
+  width: 75%;
   display: flex;
-  justify-content: space-evenly;
-  width: 50%;
+  justify-content: space-between;
+  align-items: center;
+  min-width: max-content;
 
-  li {
-    padding: 0 vars.$spacing-unit;
-    font-weight: bold;
-    font-size: vars.$font-lrg;
+  ul {
+    display: flex;
+    justify-content: space-evenly;
+    width: 25%;
+    min-width: 275px;
 
-    a {
-      color: vars.$text-primary;
-      transition: color 0.1s linear;
+    li {
+      padding: 0 vars.$spacing-unit;
+      font-weight: bold;
+      font-size: vars.$font-xlrg;
 
-      &:hover {
-        color: vars.$text-secondary;
+      a {
+        color: vars.$text-primary;
         transition: color 0.1s linear;
+
+        &:hover {
+          color: vars.$text-secondary;
+          transition: color 0.1s linear;
+        }
       }
     }
+  }
+
+  button {
+    min-width: max-content;
+    width: 100px;
+    font-size: vars.$font-sm;
+    padding: vars.$spacing-unit--half vars.$spacing-unit--half / 2;
+    max-height: 40px;
   }
 }

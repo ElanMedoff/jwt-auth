@@ -32,18 +32,15 @@ export default function Home() {
       accessToken
     );
     const data = await res.json();
-
     console.log(data, res.status);
   }
 
+  // TODO get rid of login if they're already logged in (i.e. if there's an access token?)
   return (
     <div className="home-container">
       {accessToken}
       <Login />
       <Signup />
-      <button type="button" onClick={getCat}>
-        CAT
-      </button>
     </div>
   );
 }

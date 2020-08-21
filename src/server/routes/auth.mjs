@@ -104,19 +104,37 @@ router.post("/login", async (req, res) => {
   return res.status(202).json({ accessToken });
 });
 
-router.post("/logout", async (req, res) => {
-  try {
-    if (res.cookies.refreshToken) {
-      // Delete the refresh token from the saved list
-      const savedRefreshToken = await RefreshToken.findOne({
-        refreshToken: res.cookies.refreshToken,
+router.get("/logout", async (req, res) => {
+  if (req.cookies && req.cookies.refreshToken) {
+    // Delete the refresh token from the saved list
+    let savedRefreshToken;
+    try {
+      savedRefreshToken = await RefreshToken.findOne({
+        refreshToken: req.cookies.refreshToken,
       });
-      await savedRefreshToken.remove();
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "RefreshToken.findOne" });
     }
-    return res.status(200);
-  } catch (err) {
-    return res.status(500).json({ message: err.message });
+
+    if (!savedRefreshToken) {
+      return res
+        .status(200)
+        .json("No Refresh token saved in the db to delete!");
+    }
+
+    try {
+      await savedRefreshToken.remove();
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "savedRefreshToken.remove" });
+    }
+
+    return res.status(200).json("Refresh token deleted from db");
   }
+  return res.status(500).json("No refresh token in the cookies");
 });
 
 router.get("/accessToken", async (req, res) => {
