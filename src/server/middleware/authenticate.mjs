@@ -38,10 +38,6 @@ export default async function authenticate(req, res, next) {
       .json({ message: err.message, location: "jwt.verify refresh token" });
   }
 
-  if (!decodedRefreshToken) {
-    return res.status(401).json("The refresh token cannot be read!");
-  }
-
   // Check that the access token is valid
   if (req.headers && req.headers.authorization) {
     try {
@@ -57,6 +53,16 @@ export default async function authenticate(req, res, next) {
   } else {
     return res.status(401).json("No access token in the headers!");
   }
+
+  /*
+  TODO figure out something to do if the access token expires before login
+  1) Pass along the access token in the response, in Authentication check for the response access token if the headers access token is expire
+    ! BAD, makes vulnerable to CSRF attacks!!
+  2) Make the client maintain a session of some kind to know when they have to call for a new access code
+    ? Check before each call if the expiration date is passed. 
+  3) Send the client a specific error code and message to tell them to call for a new access code
+    ? Probably do this?
+  */
 
   if (!decodedAccessToken) {
     return res.status(401).json("The access token cannot be read!");

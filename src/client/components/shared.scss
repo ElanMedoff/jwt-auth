@@ -1,0 +1,25 @@
+@use "vars";
+
+.form-container {
+  width: 300px;
+  min-width: 300px;
+  border: 1px solid grey;
+  min-height: 500px;
+  margin: vars.$spacing-unit;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    input {
+      margin: vars.$spacing-unit--half;
+      display: block;
+      width: 50%;
+
+      h1 {
+        font-size: vars.$font-base;
+      }
+    }
+  }
+}

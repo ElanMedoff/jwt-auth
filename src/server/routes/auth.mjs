@@ -96,7 +96,7 @@ router.post("/login", async (req, res) => {
   }
 
   res.cookie("refreshToken", refreshToken, {
-    maxAge: process.env.REFRESH_TOKEN_DURATION, // 12 hour
+    maxAge: process.env.REFRESH_TOKEN_DURATION,
     httpOnly: true,
     sameSite: true,
   });
@@ -137,7 +137,7 @@ router.get("/accessToken", async (req, res) => {
       return res.status(401).json("The refresh token is not saved in the db!");
     }
 
-    // If saved, json back a new access token
+    // If saved, send back a new access token
     let decodedRefreshToken;
     try {
       decodedRefreshToken = jwt.verify(
@@ -150,16 +150,11 @@ router.get("/accessToken", async (req, res) => {
         .json({ message: err.message, location: "jwt.verify" });
     }
 
-    if (!decodedRefreshToken) {
-      return res.status(401).json("The refresh token cannot be read!");
-    }
-
     try {
       const user = await User.findOne({
-        username: decodedRefreshToken.username,
+        username: decodedRefreshToken.user.username,
       });
       const accessToken = generateAccessToken(user);
-
       return res.status(202).json({ accessToken });
     } catch (err) {
       return res

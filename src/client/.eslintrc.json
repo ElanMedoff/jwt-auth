@@ -6,7 +6,8 @@
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "import/no-unresolved": "off",
     "import/no-extraneous-dependencies": "off",
-    "no-use-before-define": "warn"
+    "no-use-before-define": "warn",
+    "react/jsx-fragments": "off"
   },
   "globals": {
     "fetch": false,
