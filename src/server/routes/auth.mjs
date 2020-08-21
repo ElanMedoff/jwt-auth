@@ -1,14 +1,17 @@
 import express from "express";
-import User from "../models/userModel.mjs";
-import RefreshToken from "../models/refreshTokenModel.mjs";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import User from "../models/userModel.mjs";
+import RefreshToken from "../models/refreshTokenModel.mjs";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utilities/generateTokens.mjs";
 
 const router = express.Router();
 const saltRounds = 10;
 
-//Helper routes
-
+// Helper routes
 router.get("/", async (req, res) => {
   try {
     const users = await User.find();
@@ -40,15 +43,19 @@ router.get("/removeAll", async (req, res) => {
   }
 });
 
-//Actual routes
-
+// Actual routes
 router.post("/signup", async (req, res) => {
-  const user = await User.findOne({ username: req.body.username });
+  let user;
+  try {
+    user = await User.findOne({ username: req.body.username });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
 
   if (user) {
-    return res
-      .status(406)
-      .json({ message: `${req.body.username} is already taken!` });
+    return res.status(406).json({
+      message: `The username: ${req.body.username} is already taken!`,
+    });
   }
 
   const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
@@ -59,62 +66,69 @@ router.post("/signup", async (req, res) => {
 
   try {
     await newUser.save();
-    //? Should a signup return stuff? probably not, save that for login
-    // const accessToken = generateAccessToken(newUser);
-    // const refreshToken = generateRefreshToken(newUser);
-
-    // const savedRefreshToken = new RefreshToken({
-    //   refreshToken,
-    // });
-    // savedRefreshToken.save();
-
-    // response.cookie("refreshToken", refreshToken, {
-    //   maxAge: 60 * 60 * 1000, // 1 hour
-    //   httpOnly: true,
-    //   // secure: true,
-    //   // sameSite: true,
-    // });
-
-    return res.status(201).json({ accessToken });
+    return res
+      .status(201)
+      .json(`The username: ${req.body.username} has been created.`);
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
 });
 
 router.post("/login", async (req, res) => {
+  // Verify that the user is actually a user
+  let user;
   try {
-    const user = await User.findOne({ username: req.body.username });
-    if (!user) {
-      return res
-        .status(403)
-        .json({ message: `${req.body.username} is not registered!` });
-    }
-
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    const savedRefreshToken = new RefreshToken({
-      refreshToken,
-    });
-    savedRefreshToken.save();
-
-    response.cookie("refreshToken", refreshToken, {
-      maxAge: 60 * 60 * 1000, // 1 hour
-      httpOnly: true,
-      // secure: true,
-      // sameSite: true,
-    });
-
-    return res.status(202).json({ accessToken });
+    user = await User.findOne({ username: req.body.username });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
+
+  if (!user) {
+    return res.status(401).json({
+      message: `The username: ${req.body.username} is not registered!`,
+    });
+  }
+
+  // Validate the password
+  try {
+    await bcrypt.compare(req.body.password, user.password);
+  } catch (err) {
+    if (err) {
+      return res.status(401).json({
+        message: err.message,
+      });
+    }
+  }
+
+  const accessToken = generateAccessToken(user);
+  const refreshToken = generateRefreshToken(user);
+  const savedRefreshToken = new RefreshToken({
+    refreshToken,
+  });
+
+  try {
+    await savedRefreshToken.save();
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+
+  res.cookie("refreshToken", refreshToken, {
+    maxAge: 60 * 60 * 12000, // 12 hour
+    httpOnly: true,
+    // secure: true,
+    sameSite: true,
+  });
+
+  return res.status(202).json({ accessToken });
 });
 
 router.post("/logout", async (req, res) => {
   try {
     if (res.cookies.refreshToken) {
-      //Delete the refresh token from the saved list
-      const savedRefreshToken = await RefreshToken.findOne({refreshToken: res.cookies.refreshToken})
+      // Delete the refresh token from the saved list
+      const savedRefreshToken = await RefreshToken.findOne({
+        refreshToken: res.cookies.refreshToken,
+      });
       await savedRefreshToken.remove();
     }
   } catch (err) {
@@ -122,94 +136,50 @@ router.post("/logout", async (req, res) => {
   }
 });
 
-// TODO make into middleware
-router.post("/auth", (req, res) => {
-  let decodedRefreshToken;
-  let decodedAccessToken;
-
-  //Check that the refresh token is saved
-  if (res.cookies.refreshToken) {
+router.get("/accessToken", async (req, res) => {
+  if (req.cookies && req.cookies.refreshToken) {
+    // Check that the refresh token is still saved
+    let savedRefreshToken;
     try {
-      const savedRefreshToken = await RefreshToken.findOne({refreshToken: res.cookies.refreshToken})
-      if (!savedRefreshToken) return res.status(401).send("invalid refresh token");
-    } catch(err) {
-      return res.status(500).json({ message: err.message });
-    }
-  }
-
-  //Check that the refresh token is valid
-  try {
-    decodedRefreshToken = jwt.verify(
-      res.cookies.refreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
-  } catch (err) {
-    return res.status(500).send({message: err.message});
-  }
-
-  //Check that the access token is valid
-  if (req.headers && req.headers.authorization) {
-    try {
-      decodedAccessToken = jwt.verify(
-        req.headers.authorization.split(' ')[1],
-        process.env.ACCESS_TOKEN_SECRET
-      );
+      savedRefreshToken = await RefreshToken.findOne({
+        refreshToken: req.cookies.refreshToken,
+      });
     } catch (err) {
-      return res.status(500).send({message: err.message});
-    }
-  }
-
-  //Compare the two profiles
-  try {
-    const refreshTokenUser = await User.findOne({ username: decodedRefreshToken.username });
-    const accessTokenUser = await User.findOne({ username: decodedAccessToken.username });
-  
-    if (refreshTokenUser === accessTokenUser) {
-      return res.status(200)
-    }
-    res.status(401).send("invalid refresh token");
-  } catch (err) {
-    return res.status(500).send({message: err.message});
-  }
-});
-
-router.post("/refresh", (req, res) => {
-  // TODO make into middleware
-  if (res.cookies.refreshToken) {
-    //Check that the refresh token is still saved
-    try {
-      const savedRefreshToken = await RefreshToken.findOne({refreshToken: res.cookies.refreshToken})
-      if (!savedRefreshToken) return res.status(401).send("invalid refresh token");
-    } catch(err) {
       return res.status(500).json({ message: err.message });
     }
 
-    //If saved, send back a new access token
+    if (!savedRefreshToken) {
+      return res.status(401).send("The refresh token is not saved in the db!");
+    }
+
+    // If saved, send back a new access token
+    let decodedRefreshToken;
     try {
-      const decoded = jwt.verify(
-        res.cookies.refreshToken,
+      decodedRefreshToken = jwt.verify(
+        req.cookies.refreshToken,
         process.env.REFRESH_TOKEN_SECRET
       );
-      const user = await User.findOne({ username: decoded.username });
+    } catch (err) {
+      return res.status(500).send({ message: err.message });
+    }
+
+    if (!decodedRefreshToken) {
+      return res.status(401).send("The refresh token cannot be read!");
+    }
+
+    try {
+      const user = await User.findOne({
+        username: decodedRefreshToken.username,
+      });
       const accessToken = generateAccessToken(user);
+
       return res.status(202).json({ accessToken });
     } catch (err) {
-      return res.status(500).send({message: err.message});
+      return res.status(500).send({ message: err.message });
     }
   }
 
+  return res.status(401).send("No refresh token in the cookies");
 });
-
-function generateAccessToken(user) {
-  return jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: "15s",
-  });
-}
-
-function generateRefreshToken(user) {
-  return jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "1m",
-  });
-}
 
 export default router;

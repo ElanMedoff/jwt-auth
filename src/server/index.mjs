@@ -1,6 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+
 // import userRouter from "./routes/user";
 import authRouter from "./routes/auth.mjs";
 
@@ -17,19 +19,12 @@ db.on("error", (error) => console.log(error));
 db.once("open", () => console.log("connected to the database"));
 
 app.use(express.json());
+app.use(cookieParser());
 app.use("/api", authRouter);
 // Add in a catch-all route here
 
-// Two databases, one for a list of access tokens, the other for users
+// get name -> returns name if authenticated
 
-/*
-Routes
-login -> returns jwt
-logout -> deletes refresh token
-refresh
-
-get name -> returns name if authenticated
-
-*/
-
-app.listen(3000, () => console.log("Server has started"));
+const listener = app.listen(8080, () =>
+  console.log(`Server has started on port ${listener.address().port}`)
+);

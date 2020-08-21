@@ -7,14 +7,6 @@ Observations:
 Solution:
   1. Make VERY few utility classes solely meant for Flexbox, and make use of SASS variables, nesting, and code splitting 
     to keep your css maintainable and readable.  
-
-Observations:
-  1. CSS resets can get big and heavy, using selectors I've never seen.
-  2. That being said, many browser defaults are pretty terrible and need to be reset.
-  
-Solution:
-  1. Use Normalize CSS to solve browser inconsistencies.
-  2. Make up your own reset using only selectors you actually use.
 */
 
 .flex-row {
