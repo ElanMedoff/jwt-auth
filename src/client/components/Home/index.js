@@ -1,4 +1,6 @@
 import React, { Fragment, useEffect, useContext } from "react";
+import Loader from "react-loader-spinner";
+import classNames from "classnames";
 import GlobalStateContext from "client/contexts/globalStateContext";
 import {
   globalStateSetIsLoading,
@@ -60,8 +62,24 @@ export default function Home() {
   return (
     <div>
       {globalState.accessToken}
-      {/* TODO figure out a better spinner */}
-      {globalState.isLoading && <div>LOADING</div>}
+      <div
+        className={classNames(
+          "spinner-container",
+          globalState.isLoading
+            ? "spinner-container-open"
+            : "spinner-container-closed"
+        )}
+      >
+        <div className="spinner">
+          <Loader
+            type="Oval"
+            color="#00BFFF"
+            height={100}
+            width={100}
+            timeout={3000}
+          />
+        </div>
+      </div>
       <div className="home-container">
         {globalState.isLoggedIn ? null : (
           <Fragment>

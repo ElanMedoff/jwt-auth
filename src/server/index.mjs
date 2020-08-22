@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.mjs";
-import catRouter from "./routes/cat.mjs";
+import accountRouter from "./routes/account.mjs";
 import helpersRouter from "./routes/helpers.mjs";
 import delay from "./middleware/delay.mjs";
 
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(delay);
 app.use("/api/auth", authRouter);
 app.use("/api/helpers", helpersRouter);
-app.use("/api", catRouter);
+app.use("/api", accountRouter);
 app.all("*", (_, res) => {
   res.status(404);
 });

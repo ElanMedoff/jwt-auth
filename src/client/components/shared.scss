@@ -4,7 +4,7 @@
   width: 300px;
   min-width: 300px;
   border: 1px solid grey;
-  min-height: 500px;
+  min-height: 400px;
   margin: vars.$spacing-unit;
 
   form {
@@ -27,13 +27,44 @@
 }
 
 button {
+  display: flex;
+  justify-content: center;
   margin-top: vars.$spacing-unit;
   border: vars.$border-unit--half solid black;
   padding: vars.$spacing-unit--half vars.$spacing-unit--double;
-  // border-radius: 1000px;
+  height: 50px;
+  width: 150px;
 
   &:hover {
     background-color: lightgrey;
     transition: background-color 0.25s ease, color 0.25s ease;
   }
+}
+
+.input-error {
+  z-index: 1;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: vars.$text-secondary;
+  width: 101%;
+  top: 399px;
+  opacity: 1;
+  padding: vars.$spacing-unit;
+  font-size: vars.$font-base;
+  background-color: pink;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.input-error-open {
+  height: 150px;
+  transition: height 0.25s ease;
+}
+
+.input-error-closed {
+  padding: 0;
+  height: 0px;
+  transition: height 0.25s ease;
 }

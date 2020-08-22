@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import classNames from "classnames";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
 import { globalStateSetIsLoading } from "client/utilities/actionCreators";
@@ -6,11 +7,10 @@ import "client/components/shared.scss";
 
 export default function Signup() {
   const [globalState, dispatch] = useContext(GlobalStateContext);
-  const [signupUsername, setSignupUsername] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-
-  // TODO make this into a custom hook where is will show a red box, useInputError
-  const [isSignupError, setIsSignupError] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isInputError, setIsInputError] = useState(false);
+  const [inputErrorMessage, setInputErrorMessage] = useState("");
 
   async function onSignup(e) {
     e.preventDefault();
@@ -18,8 +18,8 @@ export default function Signup() {
       "POST",
       "http://localhost:3000/api/auth/signup",
       {
-        username: signupUsername,
-        password: signupPassword,
+        username,
+        password,
       },
       [globalState, dispatch]
     );
@@ -28,29 +28,48 @@ export default function Signup() {
 
     if (res.status !== 201) {
       console.error(res.status, data);
-      setIsSignupError(true);
+      setIsInputError(true);
+      setInputErrorMessage(data.message);
       return;
     }
     console.log(res.status, data);
+    setUsername("");
+    setPassword("");
   }
 
   return (
     <div className="form-container">
-      <form>
+      <form className="relative">
         <h1>Signup</h1>
         <input
           type="text"
           placeholder="username"
-          onChange={(e) => setSignupUsername(e.target.value)}
+          value={username}
+          onChange={(e) => {
+            setIsInputError(false);
+            setUsername(e.target.value);
+          }}
         />
         <input
           type="text"
           placeholder="password"
-          onChange={(e) => setSignupPassword(e.target.value)}
+          value={password}
+          onChange={(e) => {
+            setIsInputError(false);
+            setPassword(e.target.value);
+          }}
         />
         <button type="submit" onClick={(e) => onSignup(e)}>
           Signup
         </button>
+        <div
+          className={classNames(
+            "input-error",
+            isInputError ? "input-error-open" : "input-error-closed"
+          )}
+        >
+          {isInputError && inputErrorMessage}
+        </div>
       </form>
     </div>
   );

@@ -12,6 +12,12 @@ const router = express.Router();
 const saltRounds = 10;
 
 router.post("/signup", async (req, res) => {
+  if (!req.body.password) {
+    return res.status(406).json({
+      message: "No password supplied!",
+    });
+  }
+
   let user;
   try {
     user = await User.findOne({ username: req.body.username });

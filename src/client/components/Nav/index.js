@@ -31,7 +31,7 @@ export default function Nav() {
             <Link to="/">Home</Link>
           </li>
           <li>
-            <Link to="/cat">Cat</Link>
+            <Link to="/account">Account</Link>
           </li>
         </ul>
         <button type="button" onClick={onLogout}>

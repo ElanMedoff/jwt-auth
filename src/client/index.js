@@ -6,7 +6,7 @@ import useGlobalState from "client/hooks/useGlobalState";
 import GlobalStateContext from "client/contexts/globalStateContext";
 import Home from "client/components/Home";
 import Nav from "client/components/Nav";
-import Cat from "client/components/Cat";
+import Account from "client/components/Account";
 import "client/scss/_normalize.scss";
 import "client/scss/_resets.scss";
 import "client/scss/_utilities.scss";
@@ -28,8 +28,8 @@ function App() {
           <Route exact path="/">
             <Home />
           </Route>
-          <Route path="/cat">
-            <Cat />
+          <Route path="/account">
+            <Account />
           </Route>
           <Route>
             <NoMatch />
