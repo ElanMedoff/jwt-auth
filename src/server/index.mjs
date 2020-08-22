@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./routes/auth.mjs";
 import catRouter from "./routes/cat.mjs";
 import helpersRouter from "./routes/helpers.mjs";
+import delay from "./middleware/delay.mjs";
 
 dotenv.config();
 const app = express();
@@ -21,6 +22,7 @@ db.once("open", () => console.log("connected to the database"));
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(delay);
 app.use("/api/auth", authRouter);
 app.use("/api/helpers", helpersRouter);
 app.use("/api", catRouter);

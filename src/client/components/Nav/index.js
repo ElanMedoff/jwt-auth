@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import GlobalStateContext from "client/contexts/globalStateContext";
+import {
+  globalStateSetIsLoading,
+  globalStateSetIsLoggedIn,
+} from "client/utilities/actionCreators";
 import "./Nav.scss";
-import "../shared.scss";
+import "client/components/shared.scss";
 
 export default function Nav() {
-  async function onSignout(e) {
+  const [, dispatch] = useContext(GlobalStateContext);
+
+  async function onLogout(e) {
     e.preventDefault();
 
+    globalStateSetIsLoading(dispatch, { isLoading: true });
     const res = await fetch("http://localhost:3000/api/auth/logout");
     const data = await res.json();
     console.log(res.status, data);
+
+    globalStateSetIsLoggedIn(dispatch, { isLoggedIn: false });
+    globalStateSetIsLoading(dispatch, { isLoading: false });
   }
 
   return (
@@ -23,8 +34,8 @@ export default function Nav() {
             <Link to="/cat">Cat</Link>
           </li>
         </ul>
-        <button type="button" onClick={onSignout}>
-          Sign out
+        <button type="button" onClick={onLogout}>
+          Log out
         </button>
       </div>
     </div>

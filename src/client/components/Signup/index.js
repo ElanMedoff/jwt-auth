@@ -1,12 +1,15 @@
 import React, { useState, useContext } from "react";
 import myFetch from "client/utilities/myFetch";
-import AccessTokenContext from "client/contexts/accessTokenContext";
-import "../shared.scss";
+import GlobalStateContext from "client/contexts/globalStateContext";
+import { globalStateSetIsLoading } from "client/utilities/actionCreators";
+import "client/components/shared.scss";
 
 export default function Signup() {
-  const [accessToken, setAccessToken] = useContext(AccessTokenContext);
+  const [globalState, dispatch] = useContext(GlobalStateContext);
   const [signupUsername, setSignupUsername] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+
+  // TODO make this into a custom hook where is will show a red box, useInputError
   const [isSignupError, setIsSignupError] = useState(false);
 
   async function onSignup(e) {
@@ -18,9 +21,10 @@ export default function Signup() {
         username: signupUsername,
         password: signupPassword,
       },
-      accessToken
+      [globalState, dispatch]
     );
     const data = await res.json();
+    globalStateSetIsLoading(dispatch, { isLoading: false });
 
     if (res.status !== 201) {
       console.error(res.status, data);

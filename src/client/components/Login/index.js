@@ -1,10 +1,15 @@
-import React, { Fragment, useState, useContext } from "react";
+import React, { useState, useContext } from "react";
 import myFetch from "client/utilities/myFetch";
-import AccessTokenContext from "client/contexts/accessTokenContext";
-import "../shared.scss";
+import GlobalStateContext from "client/contexts/globalStateContext";
+import {
+  globalStateSetIsLoading,
+  globalStateSetIsLoggedIn,
+  globalStateSetAccessToken,
+} from "client/utilities/actionCreators";
+import "client/components/shared.scss";
 
 export default function Login() {
-  const [accessToken, setAccessToken] = useContext(AccessTokenContext);
+  const [globalState, dispatch] = useContext(GlobalStateContext);
 
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -19,7 +24,7 @@ export default function Login() {
         username: loginUsername,
         password: loginPassword,
       },
-      accessToken
+      [globalState, dispatch]
     );
 
     const data = await res.json();
@@ -27,9 +32,15 @@ export default function Login() {
     if (res.status !== 202) {
       console.error(res.status, data);
       setIsLoginError(true);
+
+      globalStateSetIsLoggedIn(dispatch, { isLoggedIn: false });
+      globalStateSetIsLoading(dispatch, { isLoading: false });
       return;
     }
-    setAccessToken(data.accessToken);
+
+    globalStateSetAccessToken(dispatch, { accessToken: data.accessToken });
+    globalStateSetIsLoggedIn(dispatch, { isLoggedIn: true });
+    globalStateSetIsLoading(dispatch, { isLoading: false });
   }
 
   return (
@@ -41,6 +52,7 @@ export default function Login() {
           placeholder="username"
           onChange={(e) => setLoginUsername(e.target.value)}
         />
+        {isLoginError && <div>LOGIN ERROR</div>}
         <input
           type="text"
           placeholder="password"

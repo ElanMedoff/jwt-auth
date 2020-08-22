@@ -2,12 +2,12 @@
   "extends": ["airbnb", "prettier", "plugin:react/recommended"],
   "plugins": ["prettier"],
   "rules": {
-    "no-unused-vars": "warn",
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
     "import/no-unresolved": "off",
     "import/no-extraneous-dependencies": "off",
     "no-use-before-define": "warn",
-    "react/jsx-fragments": "off"
+    "react/jsx-fragments": "off",
+    "no-console": "off"
   },
   "globals": {
     "fetch": false,

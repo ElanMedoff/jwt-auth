@@ -2,8 +2,8 @@ import "@babel/polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import useAccessToken from "client/hooks/useAccessToken";
-import AccessTokenContext from "client/contexts/accessTokenContext";
+import useGlobalState from "client/hooks/useGlobalState";
+import GlobalStateContext from "client/contexts/globalStateContext";
 import Home from "client/components/Home";
 import Nav from "client/components/Nav";
 import Cat from "client/components/Cat";
@@ -17,9 +17,11 @@ function NoMatch() {
 }
 
 function App() {
-  const accessToken = useAccessToken();
+  const globalState = useGlobalState();
+
+  // console.log(globalState);
   return (
-    <AccessTokenContext.Provider value={accessToken}>
+    <GlobalStateContext.Provider value={globalState}>
       <Router>
         <Nav />
         <Switch>
@@ -34,7 +36,7 @@ function App() {
           </Route>
         </Switch>
       </Router>
-    </AccessTokenContext.Provider>
+    </GlobalStateContext.Provider>
   );
 }
 

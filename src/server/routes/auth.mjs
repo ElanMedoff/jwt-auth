@@ -184,4 +184,34 @@ router.get("/accessToken", async (req, res) => {
   return res.status(401).json("No refresh token in the cookies");
 });
 
+router.get("/isLoggedIn", async (req, res) => {
+  if (req.cookies && req.cookies.refreshToken) {
+    let savedRefreshToken;
+    try {
+      savedRefreshToken = await RefreshToken.findOne({
+        refreshToken: req.cookies.refreshToken,
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "await RefreshToken.findOne" });
+    }
+
+    if (savedRefreshToken) {
+      return res.status(200).json({
+        message: "The refresh token is valid, i.e. the user is logged in.",
+        isLoggedIn: true,
+      });
+    }
+
+    return res.status(401).json({
+      message: "The refresh token is not saved in the db!",
+      isLoggedIn: false,
+    });
+  }
+  return res
+    .status(401)
+    .json({ message: "No refresh token in the cookies", isLoggedIn: false });
+});
+
 export default router;
