@@ -1,23 +1,30 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import classNames from "classnames";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
-import {
-  globalStateSetIsLoading,
-  globalStateSetIsLoggedIn,
-  globalStateSetAccessToken,
-} from "client/utilities/actionCreators";
 import "client/components/shared.scss";
 
 export default function Login() {
-  const [globalState, dispatch] = useContext(GlobalStateContext);
+  const globalState = useContext(GlobalStateContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isInputError, setIsInputError] = useState(false);
   const [inputErrorMessage, setInputErrorMessage] = useState("");
+  let isSubscribed = true;
+
+  //TODO this seems wrong
+  useEffect(() => {
+    setUsername("");
+    setPassword("");
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [globalState.setIsLoggedIn]);
 
   async function onLogin(e) {
     e.preventDefault();
+
     const res = await myFetch(
       "POST",
       "http://localhost:3000/api/auth/login",
@@ -25,26 +32,27 @@ export default function Login() {
         username,
         password,
       },
-      [globalState, dispatch]
+      globalState
     );
 
     const data = await res.json();
+
+    // console.log(isSubscribed);
+    // if (!isSubscribed) return;
 
     if (res.status !== 202) {
       console.error(res.status, data);
       setIsInputError(true);
       setInputErrorMessage(data.message);
 
-      globalStateSetIsLoggedIn(dispatch, { isLoggedIn: false });
-      globalStateSetIsLoading(dispatch, { isLoading: false });
+      globalState.setIsLoggedIn(false);
+      globalState.setIsLoading(false);
       return;
     }
 
-    globalStateSetAccessToken(dispatch, { accessToken: data.accessToken });
-    globalStateSetIsLoggedIn(dispatch, { isLoggedIn: true });
-    globalStateSetIsLoading(dispatch, { isLoading: false });
-    setUsername("");
-    setPassword("");
+    globalState.setAccessToken(data.accessToken);
+    globalState.setIsLoggedIn(true);
+    globalState.setIsLoading(false);
   }
 
   return (

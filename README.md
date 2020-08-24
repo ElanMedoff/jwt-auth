@@ -6,7 +6,7 @@ Uses JWT access tokens stored in React state, with refresh tokens stored in same
 
 The only session-like behavior on the server is a database of current refresh tokens. 
 
-(A good excuse to try useReducer + useContext for global state, some scss tricks, and client-side authentication)
+(A good excuse to try useState + useContext for global state, some scss tricks, and client-side authentication)
 
 Scenarios:
 1. User logs in with correct credentials:

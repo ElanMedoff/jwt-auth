@@ -38,3 +38,32 @@
     max-height: 40px;
   }
 }
+
+.countdown-timers {
+  margin-top: vars.$spacing-unit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .countdown-timer-container {
+    padding: vars.$spacing-unit--half / 2 0;
+    min-width: 500px;
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+  }
+}
+
+.access-token-container {
+  margin-top: vars.$spacing-unit--half;
+  padding-top: vars.$spacing-unit--half;
+  border-top: vars.$border-unit--half solid vars.$blue;
+  width: 50%;
+
+  .access-token {
+    overflow-wrap: anywhere;
+    font-size: vars.$font-sm;
+    // font-style: italic;
+  }
+}

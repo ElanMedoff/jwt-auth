@@ -1,12 +1,7 @@
 import jwt from "jsonwebtoken";
-import {
-  globalStateSetIsLoading,
-  globalStateSetAccessToken,
-} from "client/utilities/actionCreators";
 
-export default async function myFetch(method, url, data, globalStateArray) {
-  const [globalState, dispatch] = globalStateArray;
-  globalStateSetIsLoading(dispatch, { isLoading: true });
+export default async function myFetch(method, url, data, globalState) {
+  globalState.setIsLoading(true);
 
   let { accessToken } = globalState;
 
@@ -17,7 +12,7 @@ export default async function myFetch(method, url, data, globalStateArray) {
     if (now.getTime() > expiry * 1000) {
       const res = await fetch("http://localhost:3000/api/auth/accessToken");
       const resData = await res.json();
-      globalStateSetAccessToken(dispatch, { accessToken: resData.accessToken });
+      globalState.setAccessToken(resData.accessToken);
 
       // ? Is this ok? This way I don't rely on the dispatch being completed synchronously
       accessToken = resData.accessToken;

@@ -2,11 +2,10 @@ import React, { useState, useContext } from "react";
 import classNames from "classnames";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
-import { globalStateSetIsLoading } from "client/utilities/actionCreators";
 import "client/components/shared.scss";
 
 export default function Signup() {
-  const [globalState, dispatch] = useContext(GlobalStateContext);
+  const globalState = useContext(GlobalStateContext);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isInputError, setIsInputError] = useState(false);
@@ -21,10 +20,10 @@ export default function Signup() {
         username,
         password,
       },
-      [globalState, dispatch]
+      globalState
     );
     const data = await res.json();
-    globalStateSetIsLoading(dispatch, { isLoading: false });
+    globalState.setIsLoading(false);
 
     if (res.status !== 201) {
       console.error(res.status, data);

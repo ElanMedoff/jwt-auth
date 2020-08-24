@@ -1,34 +1,16 @@
-import { useReducer } from "react";
+import { useState } from "react";
 
 export default function useGlobalState() {
-  // eslint-disable-next-line consistent-return
-  function reducer(state, action) {
-    switch (action.type) {
-      case "SET_IS_LOADING":
-        return {
-          ...state,
-          isLoading: action.payload.isLoading,
-        };
-      case "SET_IS_LOGGED_IN":
-        return {
-          ...state,
-          isLoggedIn: action.payload.isLoggedIn,
-        };
-      case "SET_ACCESS_TOKEN":
-        return {
-          ...state,
-          accessToken: action.payload.accessToken,
-        };
-      default:
-        throw new Error("Action type not valid!");
-    }
-  }
+  const [accessToken, setAccessToken] = useState();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const initialState = {
-    accessToken: "",
-    isLoading: true,
-    isLoggedIn: false,
+  return {
+    accessToken,
+    setAccessToken,
+    isLoggedIn,
+    setIsLoggedIn,
+    isLoading,
+    setIsLoading,
   };
-
-  return useReducer(reducer, initialState);
 }

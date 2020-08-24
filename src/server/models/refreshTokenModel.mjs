@@ -5,6 +5,10 @@ const refreshTokenSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  username: {
+    type: String,
+    required: true,
+  },
 });
 
 const RefreshToken = mongoose.model("RefreshToken", refreshTokenSchema);

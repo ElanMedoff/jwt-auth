@@ -71,7 +71,6 @@ router.post("/login", async (req, res) => {
   }
 
   if (!isPasswordCorrect) {
-    // TODO abstract this?
     try {
       if (req.cookies && req.cookies.refreshToken) {
         // Delete the refresh token from the saved list
@@ -89,10 +88,36 @@ router.post("/login", async (req, res) => {
     });
   }
 
+  // Remove any other refresh tokens tied to that user that may be in the db
+  let alreadySavedRefreshToken;
+  try {
+    alreadySavedRefreshToken = await RefreshToken.findOne({
+      username: req.body.username,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: err.message, location: "RefreshToken.findOne" });
+  }
+
+  if (alreadySavedRefreshToken) {
+    try {
+      await alreadySavedRefreshToken.remove();
+    } catch (err) {
+      return res
+        .status(500)
+        .json({
+          message: err.message,
+          location: "alreadySavedRefreshToken.remove",
+        });
+    }
+  }
+
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user);
   const savedRefreshToken = new RefreshToken({
     refreshToken,
+    username: req.body.username,
   });
 
   try {
@@ -162,9 +187,9 @@ router.get("/accessToken", async (req, res) => {
     }
 
     // If saved, send back a new access token
-    let decodedRefreshToken;
+    let verifiedRefreshToken;
     try {
-      decodedRefreshToken = jwt.verify(
+      verifiedRefreshToken = jwt.verify(
         req.cookies.refreshToken,
         process.env.REFRESH_TOKEN_SECRET
       );
@@ -176,7 +201,7 @@ router.get("/accessToken", async (req, res) => {
 
     try {
       const user = await User.findOne({
-        username: decodedRefreshToken.user.username,
+        username: verifiedRefreshToken.user.username,
       });
       const accessToken = generateAccessToken(user);
       return res.status(202).json({ accessToken });
@@ -203,21 +228,34 @@ router.get("/isLoggedIn", async (req, res) => {
         .json({ message: err.message, location: "await RefreshToken.findOne" });
     }
 
-    if (savedRefreshToken) {
+    let decodedRefreshToken;
+    try {
+      decodedRefreshToken = jwt.decode(req.cookies.refreshToken);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "jwt.verify" });
+    }
+
+    if (savedRefreshToken && decodedRefreshToken) {
       return res.status(200).json({
         message: "The refresh token is valid, i.e. the user is logged in.",
         isLoggedIn: true,
+        remainingTime: decodedRefreshToken.exp * 1000,
       });
     }
 
     return res.status(401).json({
       message: "The refresh token is not saved in the db!",
       isLoggedIn: false,
+      remainingTime: 0,
     });
   }
-  return res
-    .status(401)
-    .json({ message: "No refresh token in the cookies", isLoggedIn: false });
+  return res.status(401).json({
+    message: "No refresh token in the cookies",
+    isLoggedIn: false,
+    remainingTime: 0,
+  });
 });
 
 export default router;

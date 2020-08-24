@@ -3,8 +3,8 @@ import RefreshToken from "../models/refreshTokenModel.mjs";
 import User from "../models/userModel.mjs";
 
 export default async function authenticate(req, res, next) {
-  let decodedRefreshToken;
-  let decodedAccessToken;
+  let verifiedRefreshToken;
+  let verifiedAccessToken;
 
   // Check that the refresh token is saved
   if (req.cookies && req.cookies.refreshToken) {
@@ -28,7 +28,7 @@ export default async function authenticate(req, res, next) {
 
   // Check that the refresh token is valid
   try {
-    decodedRefreshToken = jwt.verify(
+    verifiedRefreshToken = jwt.verify(
       req.cookies.refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
@@ -41,7 +41,7 @@ export default async function authenticate(req, res, next) {
   // Check that the access token is valid
   if (req.headers && req.headers.authorization) {
     try {
-      decodedAccessToken = jwt.verify(
+      verifiedAccessToken = jwt.verify(
         req.headers.authorization.split(" ")[1],
         process.env.ACCESS_TOKEN_SECRET
       );
@@ -54,7 +54,7 @@ export default async function authenticate(req, res, next) {
     return res.status(401).json("No access token in the headers!");
   }
 
-  if (!decodedAccessToken) {
+  if (!verifiedAccessToken) {
     return res.status(401).json("The access token cannot be read!");
   }
 
@@ -62,7 +62,7 @@ export default async function authenticate(req, res, next) {
   let refreshTokenUser;
   try {
     refreshTokenUser = await User.findOne({
-      username: decodedRefreshToken.user.username,
+      username: verifiedRefreshToken.user.username,
     });
   } catch (err) {
     return res.status(500).json({
@@ -82,7 +82,7 @@ export default async function authenticate(req, res, next) {
   let accessTokenUser;
   try {
     accessTokenUser = await User.findOne({
-      username: decodedAccessToken.user.username,
+      username: verifiedAccessToken.user.username,
     });
   } catch (err) {
     return res.status(500).json({
