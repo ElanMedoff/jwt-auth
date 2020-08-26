@@ -1,4 +1,5 @@
-.spinner-container {
+.spinnerContainer {
+  top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,12 +14,12 @@
   }
 }
 
-.spinner-container-open {
+.spinnerContainerOpen {
   opacity: 0.9;
   transition: opacity 0.5s ease;
 }
 
-.spinner-container-closed {
+.spinnerContainerClosed {
   opacity: 0;
   z-index: -1;
   transition: opacity 0.5s ease, z-index 0.5s ease;

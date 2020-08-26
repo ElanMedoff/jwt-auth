@@ -104,12 +104,10 @@ router.post("/login", async (req, res) => {
     try {
       await alreadySavedRefreshToken.remove();
     } catch (err) {
-      return res
-        .status(500)
-        .json({
-          message: err.message,
-          location: "alreadySavedRefreshToken.remove",
-        });
+      return res.status(500).json({
+        message: err.message,
+        location: "alreadySavedRefreshToken.remove",
+      });
     }
   }
 
@@ -241,19 +239,56 @@ router.get("/isLoggedIn", async (req, res) => {
       return res.status(200).json({
         message: "The refresh token is valid, i.e. the user is logged in.",
         isLoggedIn: true,
-        remainingTime: decodedRefreshToken.exp * 1000,
       });
     }
 
     return res.status(401).json({
       message: "The refresh token is not saved in the db!",
       isLoggedIn: false,
-      remainingTime: 0,
     });
   }
   return res.status(401).json({
     message: "No refresh token in the cookies",
     isLoggedIn: false,
+  });
+});
+
+router.get("/refreshTokenRemainingTime", async (req, res) => {
+  if (req.cookies && req.cookies.refreshToken) {
+    let savedRefreshToken;
+    try {
+      savedRefreshToken = await RefreshToken.findOne({
+        refreshToken: req.cookies.refreshToken,
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "await RefreshToken.findOne" });
+    }
+
+    let decodedRefreshToken;
+    try {
+      decodedRefreshToken = jwt.decode(req.cookies.refreshToken);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err.message, location: "jwt.verify" });
+    }
+
+    if (savedRefreshToken && decodedRefreshToken) {
+      return res.status(200).json({
+        message: "The refresh token is valid, i.e. the user is logged in.",
+        remainingTime: decodedRefreshToken.exp * 1000,
+      });
+    }
+
+    return res.status(401).json({
+      message: "The refresh token is not saved in the db!",
+      remainingTime: 0,
+    });
+  }
+  return res.status(401).json({
+    message: "No refresh token in the cookies",
     remainingTime: 0,
   });
 });

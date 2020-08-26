@@ -1,29 +1,25 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import classNames from "classnames";
+import useForm from "client/hooks/useForm";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
-import "client/components/shared.scss";
 
 export default function Login() {
   const globalState = useContext(GlobalStateContext);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isInputError, setIsInputError] = useState(false);
-  const [inputErrorMessage, setInputErrorMessage] = useState("");
-  let isSubscribed = true;
-
-  //TODO this seems wrong
-  useEffect(() => {
-    setUsername("");
-    setPassword("");
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [globalState.setIsLoggedIn]);
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    isInputError,
+    setIsInputError,
+    inputErrorMessage,
+    setInputErrorMessage,
+  } = useForm();
 
   async function onLogin(e) {
     e.preventDefault();
+    globalState.setIsLoading(true);
 
     const res = await myFetch(
       "POST",
@@ -37,22 +33,22 @@ export default function Login() {
 
     const data = await res.json();
 
-    // console.log(isSubscribed);
-    // if (!isSubscribed) return;
-
     if (res.status !== 202) {
-      console.error(res.status, data);
+      console.error("Attempted login", res.status, data.message);
       setIsInputError(true);
       setInputErrorMessage(data.message);
-
       globalState.setIsLoggedIn(false);
       globalState.setIsLoading(false);
       return;
     }
-
     globalState.setAccessToken(data.accessToken);
     globalState.setIsLoggedIn(true);
     globalState.setIsLoading(false);
+
+    if (globalState.isLoggedIn) {
+      setUsername("");
+      setPassword("");
+    }
   }
 
   return (
@@ -88,8 +84,6 @@ export default function Login() {
         >
           {isInputError && inputErrorMessage}
         </div>
-
-        {/* {`<a href="${signupPassword}">${username}</a>`} */}
       </form>
     </div>
   );

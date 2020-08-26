@@ -1,6 +1,6 @@
 @use "vars";
 
-.nav-container {
+.navContainer {
   width: 75%;
   display: flex;
   justify-content: space-between;
@@ -39,14 +39,14 @@
   }
 }
 
-.countdown-timers {
+.countdownTimers {
   margin-top: vars.$spacing-unit;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  .countdown-timer-container {
+  .countdownTimerContainer {
     padding: vars.$spacing-unit--half / 2 0;
     min-width: 500px;
     display: flex;
@@ -55,13 +55,14 @@
   }
 }
 
-.access-token-container {
+.accessTokenContainer {
   margin-top: vars.$spacing-unit--half;
   padding-top: vars.$spacing-unit--half;
   border-top: vars.$border-unit--half solid vars.$blue;
   width: 50%;
+  min-width: 500px;
 
-  .access-token {
+  .accessToken {
     overflow-wrap: anywhere;
     font-size: vars.$font-sm;
     // font-style: italic;

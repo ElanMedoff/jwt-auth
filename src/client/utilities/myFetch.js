@@ -1,8 +1,6 @@
 import jwt from "jsonwebtoken";
 
 export default async function myFetch(method, url, data, globalState) {
-  globalState.setIsLoading(true);
-
   let { accessToken } = globalState;
 
   // Before any call is made, check if the access token is expired, and if it is, get a new access token
@@ -14,7 +12,7 @@ export default async function myFetch(method, url, data, globalState) {
       const resData = await res.json();
       globalState.setAccessToken(resData.accessToken);
 
-      // ? Is this ok? This way I don't rely on the dispatch being completed synchronously
+      // Kinda like optimistic updating, allows us to make the call without relying on setAccessToken to behave synch
       accessToken = resData.accessToken;
     }
   }

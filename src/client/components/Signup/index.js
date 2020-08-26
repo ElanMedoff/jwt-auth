@@ -1,18 +1,25 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import classNames from "classnames";
+import useForm from "client/hooks/useForm";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
-import "client/components/shared.scss";
 
 export default function Signup() {
   const globalState = useContext(GlobalStateContext);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isInputError, setIsInputError] = useState(false);
-  const [inputErrorMessage, setInputErrorMessage] = useState("");
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    isInputError,
+    setIsInputError,
+    inputErrorMessage,
+    setInputErrorMessage,
+  } = useForm();
 
   async function onSignup(e) {
     e.preventDefault();
+    globalState.setIsLoading(true);
     const res = await myFetch(
       "POST",
       "http://localhost:3000/api/auth/signup",
@@ -26,12 +33,12 @@ export default function Signup() {
     globalState.setIsLoading(false);
 
     if (res.status !== 201) {
-      console.error(res.status, data);
+      console.error("Attempted signup", res.status, data.message);
       setIsInputError(true);
       setInputErrorMessage(data.message);
       return;
     }
-    console.log(res.status, data);
+    console.info("Signup", res.status, data);
     setUsername("");
     setPassword("");
   }

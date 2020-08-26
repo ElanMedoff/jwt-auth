@@ -9,9 +9,12 @@ import Nav from "client/components/Nav";
 import Account from "client/components/Account";
 import PrivateRoute from "client/components/PrivateRoute";
 import Loading from "client/components/Loading";
-import "client/scss/_normalize.scss";
-import "client/scss/_resets.scss";
-import "client/scss/_utilities.scss";
+// Order of imports matter for global css!
+import "client/scss/normalize.scss";
+import "client/scss/resets.scss";
+import "client/scss/utilities.scss";
+import "client/scss/_include-media.scss";
+import "client/components/shared.scss";
 import "./index.scss";
 
 function NoMatch() {
@@ -21,8 +24,7 @@ function NoMatch() {
 function App() {
   const globalState = useGlobalState();
 
-  // Check isLoggedIn is handled in the Nav comp
-
+  // Redux equivalent of received actions, setting globalState on-load
   useEffect(() => {
     async function fetchAccessToken() {
       globalState.setIsLoading(true);
@@ -31,7 +33,7 @@ function App() {
       if (res.status === 202) {
         globalState.setAccessToken(data.accessToken);
       } else {
-        console.warn(data, "Normal behavior if occurring on-reload");
+        console.info("Fetching accessToken on-load —", data);
       }
       globalState.setIsLoading(false);
     }
@@ -39,9 +41,23 @@ function App() {
     fetchAccessToken();
   }, []);
 
+  useEffect(() => {
+    async function fetchRefreshTokenTime() {
+      globalState.setIsLoading(true);
+      const res = await fetch("http://localhost:3000/api/auth/isLoggedIn");
+      const data = await res.json();
+      globalState.setIsLoggedIn(data.isLoggedIn);
+      globalState.setIsLoading(false);
+      console.info("Fetching isLoggedIn on-load —", data.message);
+    }
+
+    fetchRefreshTokenTime();
+  }, []);
+
   return (
     <GlobalStateContext.Provider value={globalState}>
       <Router>
+        {/* Loading contains all the logic for when to appear */}
         <Loading />
         <Nav />
         <Switch>

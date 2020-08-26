@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import jwt from "jsonwebtoken";
 import GlobalStateContext from "client/contexts/globalStateContext";
 import Countdown from "react-countdown";
-import "./Nav.scss";
-import "client/components/shared.scss";
+import styles from "./Nav.module.scss";
 
 export default function Nav() {
   const globalState = useContext(GlobalStateContext);
@@ -22,17 +21,20 @@ export default function Nav() {
   useEffect(() => {
     async function fetchRefreshTokenTime() {
       globalState.setIsLoading(true);
-      const res = await fetch("http://localhost:3000/api/auth/isLoggedIn");
+      const res = await fetch(
+        "http://localhost:3000/api/auth/refreshTokenRemainingTime"
+      );
       const data = await res.json();
-      globalState.setIsLoggedIn(data.isLoggedIn);
       globalState.setIsLoading(false);
-
       setRefreshTokenTime(data.remainingTime - Date.now());
-
-      console.log(res.status, data);
+      console.info("Fetching refresh token remaining time", res.status, data);
     }
 
-    fetchRefreshTokenTime();
+    if (globalState.isLoggedIn) {
+      fetchRefreshTokenTime();
+    } else {
+      setRefreshTokenTime(0);
+    }
   }, [globalState.isLoggedIn]);
 
   async function onLogout(e) {
@@ -45,13 +47,13 @@ export default function Nav() {
     globalState.setIsLoggedIn(false);
     globalState.setIsLoading(false);
 
-    console.log(res.status, data);
+    console.info("Logout", res.status, data);
   }
 
   return (
     <Fragment>
       <div className="flex-row justify-center width-100">
-        <div className="nav-container">
+        <div className={styles.navContainer}>
           <ul>
             <li>
               <Link to="/">Home</Link>
@@ -65,18 +67,18 @@ export default function Nav() {
           </button>
         </div>
       </div>
-      <div className="countdown-timers">
-        <div className="countdown-timer-container">
+      <div className={styles.countdownTimers}>
+        <div className={styles.countdownTimerContainer}>
           <span>Access Token Remaining Time:</span>
           <Countdown date={Date.now() + accessTokenTime} />
         </div>
-        <div className="countdown-timer-container">
+        <div className={styles.countdownTimerContainer}>
           <span>Refresh Token Remaining Time:</span>
           <Countdown date={Date.now() + refreshTokenTime} />
         </div>
-        <div className="access-token-container">
+        <div className={styles.accessTokenContainer}>
           <div>Access token:</div>
-          <span className="access-token">{globalState.accessToken}</span>
+          <span className={styles.accessToken}>{globalState.accessToken}</span>
         </div>
       </div>
     </Fragment>

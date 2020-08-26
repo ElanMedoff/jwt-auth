@@ -2,20 +2,20 @@ import React, { useContext } from "react";
 import Loader from "react-loader-spinner";
 import classNames from "classnames";
 import GlobalStateContext from "client/contexts/globalStateContext";
-import "./Loading.scss";
+import styles from "./Loading.module.scss";
 
 export default function Loading() {
   const globalState = useContext(GlobalStateContext);
   return (
     <div
       className={classNames(
-        "spinner-container",
+        styles.spinnerContainer,
         globalState.isLoading
-          ? "spinner-container-open"
-          : "spinner-container-closed"
+          ? styles.spinnerContainerOpen
+          : styles.spinnerContainerClosed
       )}
     >
-      <div className="spinner">
+      <div className={styles.spinner}>
         <Loader
           type="Oval"
           color="#00BFFF"

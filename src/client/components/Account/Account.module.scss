@@ -1,0 +1,13 @@
+@use "vars";
+
+.dataContainer {
+  margin-top: 100px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+
+  .data {
+    width: 60%;
+    font-size: vars.$font-base;
+  }
+}
