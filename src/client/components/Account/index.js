@@ -26,6 +26,7 @@ export default function Account() {
     }
   }, [globalState.accessToken]);
 
+  console.log(globalState.isLoading, data);
   return (
     <div className={styles.dataContainer}>
       <div className={styles.data}>

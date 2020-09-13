@@ -5,7 +5,9 @@ import GlobalStateContext from "client/contexts/globalStateContext";
 import styles from "./Loading.module.scss";
 
 export default function Loading() {
+  console.log("Loading is rendering!");
   const globalState = useContext(GlobalStateContext);
+
   return (
     <div
       className={classNames(

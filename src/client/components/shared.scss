@@ -23,6 +23,27 @@
       width: 50%;
       border-bottom: vars.$border-unit--half solid black;
     }
+
+    .password-container {
+      margin: vars.$spacing-unit--half;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      width: 50%;
+
+      .password {
+        margin: 0;
+        width: 100%;
+      }
+
+      .password-icon {
+        padding: 1px;
+        position: absolute;
+        top: -3px;
+        right: 0;
+        background-color: white;
+      }
+    }
   }
 }
 
@@ -34,6 +55,7 @@ button {
   padding: vars.$spacing-unit--half vars.$spacing-unit--double;
   height: 50px;
   width: 150px;
+  user-select: none;
 
   &:hover {
     background-color: lightgrey;

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import classNames from "classnames";
+import { BiShow, BiHide } from "react-icons/bi";
 import useForm from "client/hooks/useForm";
 import myFetch from "client/utilities/myFetch";
 import GlobalStateContext from "client/contexts/globalStateContext";
@@ -15,6 +16,8 @@ export default function Login() {
     setIsInputError,
     inputErrorMessage,
     setInputErrorMessage,
+    showPassword,
+    setShowPassword,
   } = useForm();
 
   async function onLogin(e) {
@@ -64,15 +67,29 @@ export default function Login() {
             setUsername(e.target.value);
           }}
         />
-        <input
-          type="text"
-          placeholder="password"
-          value={password}
-          onChange={(e) => {
-            setIsInputError(false);
-            setPassword(e.target.value);
-          }}
-        />
+        <div className="password-container">
+          <input
+            className="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="password"
+            value={password}
+            onChange={(e) => {
+              setIsInputError(false);
+              setPassword(e.target.value);
+            }}
+          />
+          <div
+            className="password-icon"
+            onClick={
+              showPassword
+                ? () => setShowPassword(false)
+                : () => setShowPassword(true)
+            }
+          >
+            {showPassword ? <BiShow /> : <BiHide />}
+          </div>
+        </div>
+
         <button type="submit" onClick={(e) => onLogin(e)}>
           Login
         </button>
