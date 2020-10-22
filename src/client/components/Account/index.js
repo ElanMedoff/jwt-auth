@@ -9,7 +9,7 @@ export default function Account() {
 
   useEffect(() => {
     async function getAccountInfo() {
-      globalState.setIsLoading(true);
+      globalState.setIsAccountReady(false);
       const res = await myFetch(
         "GET",
         "http://localhost:3000/api/account",
@@ -17,7 +17,7 @@ export default function Account() {
         globalState
       );
       const resData = await res.json();
-      globalState.setIsLoading(false);
+      globalState.setIsAccountReady(true);
       setData(resData.username);
     }
 
@@ -26,7 +26,6 @@ export default function Account() {
     }
   }, [globalState.accessToken]);
 
-  console.log(globalState.isLoading, data);
   return (
     <div className={styles.dataContainer}>
       <div className={styles.data}>

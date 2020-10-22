@@ -20,12 +20,12 @@ export default function Nav() {
 
   useEffect(() => {
     async function fetchRefreshTokenTime() {
-      globalState.setIsLoading(true);
+      globalState.setIsNavReady(false);
       const res = await fetch(
         "http://localhost:3000/api/auth/refreshTokenRemainingTime"
       );
       const data = await res.json();
-      globalState.setIsLoading(false);
+      globalState.setIsNavReady(true);
       setRefreshTokenTime(data.remainingTime - Date.now());
       console.info("Fetching refresh token remaining time", res.status, data);
     }
@@ -40,12 +40,12 @@ export default function Nav() {
   async function onLogout(e) {
     e.preventDefault();
 
-    globalState.setIsLoading(true);
+    globalState.setIsNavReady(false);
     const res = await fetch("http://localhost:3000/api/auth/logout");
     const data = await res.json();
 
     globalState.setIsLoggedIn(false);
-    globalState.setIsLoading(false);
+    globalState.setIsNavReady(true);
 
     console.info("Logout", res.status, data);
   }

@@ -22,7 +22,7 @@ export default function Signup() {
 
   async function onSignup(e) {
     e.preventDefault();
-    globalState.setIsLoading(true);
+    globalState.setIsSignupReady(false);
     const res = await myFetch(
       "POST",
       "http://localhost:3000/api/auth/signup",
@@ -33,7 +33,7 @@ export default function Signup() {
       globalState
     );
     const data = await res.json();
-    globalState.setIsLoading(false);
+    globalState.setIsSignupReady(true);
 
     if (res.status !== 201) {
       console.error("Attempted signup", res.status, data.message);

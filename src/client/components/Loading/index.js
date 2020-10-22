@@ -5,16 +5,15 @@ import GlobalStateContext from "client/contexts/globalStateContext";
 import styles from "./Loading.module.scss";
 
 export default function Loading() {
-  console.log("Loading is rendering!");
   const globalState = useContext(GlobalStateContext);
 
   return (
     <div
       className={classNames(
         styles.spinnerContainer,
-        globalState.isLoading
-          ? styles.spinnerContainerOpen
-          : styles.spinnerContainerClosed
+        globalState.isReady
+          ? styles.spinnerContainerClosed
+          : styles.spinnerContainerOpen
       )}
     >
       <div className={styles.spinner}>

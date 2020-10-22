@@ -27,7 +27,6 @@ function App() {
   // Redux equivalent of received actions, setting globalState on-load
   useEffect(() => {
     async function fetchAccessToken() {
-      globalState.setIsLoading(true);
       const res = await fetch("http://localhost:3000/api/auth/accessToken");
       const data = await res.json();
       if (res.status === 202) {
@@ -35,23 +34,19 @@ function App() {
       } else {
         console.info("Fetching accessToken on-load —", data);
       }
-      globalState.setIsLoading(false);
     }
 
-    fetchAccessToken();
-  }, []);
-
-  useEffect(() => {
     async function fetchRefreshTokenTime() {
-      globalState.setIsLoading(true);
       const res = await fetch("http://localhost:3000/api/auth/isLoggedIn");
       const data = await res.json();
       globalState.setIsLoggedIn(data.isLoggedIn);
-      globalState.setIsLoading(false);
       console.info("Fetching isLoggedIn on-load —", data.message);
     }
 
-    fetchRefreshTokenTime();
+    globalState.setIsSourceReady(false);
+    Promise.all([fetchRefreshTokenTime(), fetchAccessToken()]).then(() => {
+      globalState.setIsSourceReady(true);
+    });
   }, []);
 
   return (

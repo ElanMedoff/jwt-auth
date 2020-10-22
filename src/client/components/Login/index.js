@@ -22,7 +22,7 @@ export default function Login() {
 
   async function onLogin(e) {
     e.preventDefault();
-    globalState.setIsLoading(true);
+    globalState.setIsLoginReady(false);
 
     const res = await myFetch(
       "POST",
@@ -41,12 +41,12 @@ export default function Login() {
       setIsInputError(true);
       setInputErrorMessage(data.message);
       globalState.setIsLoggedIn(false);
-      globalState.setIsLoading(false);
+      globalState.setIsLoginReady(true);
       return;
     }
     globalState.setAccessToken(data.accessToken);
     globalState.setIsLoggedIn(true);
-    globalState.setIsLoading(false);
+    globalState.setIsLoginReady(true);
 
     if (globalState.isLoggedIn) {
       setUsername("");
