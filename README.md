@@ -1,6 +1,6 @@
 # JWT-Experiment
 
-This project is a bit old, and if I were starting from scratch today I'd user different technologies (typescript, vite, tailwind, etc.), but the implementation is cool, so I'll keep it public for now.
+This project is a bit old - if I were starting from scratch today, I'd use different technologies like typescript, vite, tailwind, etc. That being said, the implementation is cool, so I'll keep it public for now.
 
 ---
 
